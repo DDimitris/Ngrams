@@ -38,7 +38,7 @@ public class Tokenizer {
 
     public void startTokenization() throws IOException {
         europarlString = new String(Files.readAllBytes(fileToBeRead.toPath()));
-        String replace = europarlString.replace("\\s+", " ");
+        String replace = europarlString.trim().replaceAll("\\s+", " ");
         String replace2 = replace.replace("-", " ");
         String[] split = replace2.split(" ");
         boolean isNewSentence = true;
