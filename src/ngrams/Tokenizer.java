@@ -38,11 +38,9 @@ public class Tokenizer {
 
     public void startTokenization() throws IOException {
         europarlString = new String(Files.readAllBytes(fileToBeRead.toPath()));
-        String replace = europarlString.replace("\n", " ");
-        String replace1 = replace.replace("\r", " ");
-        String replace2 = replace1.replace("\n\r", " ");
-        String replace3 = replace2.replace("-", " ");
-        String[] split = replace3.split(" ");
+        String replace = europarlString.replace("\\s+", " ");
+        String replace2 = replace.replace("-", " ");
+        String[] split = replace2.split(" ");
         boolean isNewSentence = true;
         for (int i = numberOfNgrams - 1; i < split.length; i++) {
             String token = new String();
