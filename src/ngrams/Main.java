@@ -15,7 +15,7 @@ public class Main {
     
     public static void main(String[] args) throws IOException {
         File europarl = new File("europarl.txt");
-        Tokenizer tokenizer = new Tokenizer(3, europarl);
+        Tokenizer tokenizer = new Tokenizer(3, europarl, 10);
         tokenizer.startTokenization();
         for(String s : tokenizer.getCreatedNgrams()){
             System.out.println(s);
