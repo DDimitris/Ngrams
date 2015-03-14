@@ -11,8 +11,10 @@ import java.io.StringReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.shingle.ShingleFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
@@ -29,13 +31,17 @@ public class Tokenizer {
     private List<String> ngramsList;
     private String europarlString;
     private int wordFrequency;
-    private Map<String, Integer> dictionary;
+    private Map<String, Integer> tmpDictionary;
+    private Set<String> dictionary;
     private List<String> corpusWithTags;
+    private Map<String, Integer> ngramsFrequencyMap;
 
     {
+        ngramsFrequencyMap = new HashMap<>();
+        dictionary = new HashSet<>();
         corpusWithTags = new ArrayList<>();
         ngramsList = new ArrayList<>();
-        dictionary = new HashMap<>();
+        tmpDictionary = new HashMap<>();
     }
 
     /**
@@ -81,9 +87,10 @@ public class Tokenizer {
 //        printDictionary();
 //        printTagedList();
         for (int i = numberOfNgrams - 1; i < split.length; i++) {
-            String token = new String();
+            int ngramFrequency = 1;
+            String token;
             int j = i;
-            if (dictionary.containsKey((String) split[i]) && dictionary.get((String) split[i]) > wordFrequency) {
+            if (dictionary.contains(split[i])) {
                 token = (String) split[i];
             } else {
                 token = "*unknown*";
@@ -91,7 +98,7 @@ public class Tokenizer {
             int k = j - numberOfNgrams + 1;
             do {
                 j--;
-                if (dictionary.containsKey((String) split[j]) && dictionary.get((String) split[j]) > wordFrequency) {
+                if (dictionary.contains(split[j])) {
                     token = split[j] + " " + token;
                 } else {
                     token = "*unknown*" + " " + token;
@@ -101,6 +108,12 @@ public class Tokenizer {
                 i = i + numberOfNgrams - 1;
             }
             ngramsList.add(token);
+            if (ngramsFrequencyMap.containsKey(token)) {
+                Integer frequency = ngramsFrequencyMap.get(token);
+                ngramsFrequencyMap.put(token, frequency + ngramFrequency);
+            } else {
+                ngramsFrequencyMap.put(token, ngramFrequency);
+            }
         }
     }
 
@@ -113,12 +126,19 @@ public class Tokenizer {
     private void createDictionary(String[] splitedFile) {
         for (String word : splitedFile) {
             int wordFrequency = 1;
-            if (dictionary.containsKey(word)) {
-                wordFrequency = dictionary.get(word) + 1;
+            if (tmpDictionary.containsKey(word)) {
+                wordFrequency = tmpDictionary.get(word) + 1;
             }
-            dictionary.put(word, wordFrequency);
+            tmpDictionary.put(word, wordFrequency);
         }
-        dictionary.put("<s>", Integer.MAX_VALUE);
+        for (Map.Entry<String, Integer> map : tmpDictionary.entrySet()) {
+            if (map.getValue() > wordFrequency) {
+                dictionary.add(map.getKey());
+            } else {
+                dictionary.add("*unknown*");
+            }
+        }
+
     }
 
     /**
@@ -130,6 +150,9 @@ public class Tokenizer {
      * @return
      */
     private StringBuilder generateStartTags(String[] file) {
+        for (int i = 0; i < numberOfNgrams - 1; i++) {
+            corpusWithTags.add("<s>");
+        }
         for (String token : file) {
             corpusWithTags.add(token);
             if (token.endsWith(".") || token.endsWith("!") || token.endsWith("?")) {
@@ -140,7 +163,8 @@ public class Tokenizer {
         }
         StringBuilder b = new StringBuilder();
         for (String s : corpusWithTags) {
-            b.append(s + " ");
+            b.append(s);
+            b.append(" ");
         }
         return b;
     }
@@ -158,7 +182,7 @@ public class Tokenizer {
      * This method prints all the words in the dictionary with their frequency.
      */
     private void printDictionary() {
-        for (Map.Entry<String, Integer> d : dictionary.entrySet()) {
+        for (Map.Entry<String, Integer> d : tmpDictionary.entrySet()) {
             System.out.println("Word " + d.getKey() + " has frequency " + d.getValue());
         }
     }
@@ -191,5 +215,21 @@ public class Tokenizer {
 
     public List<String> getCreatedNgrams() {
         return ngramsList;
+    }
+
+    public Map<String, Integer> getNgramsFrequency() {
+        return ngramsFrequencyMap;
+    }
+
+    public void prinNgrams() {
+        for (String s : ngramsList) {
+            System.out.println(s);
+        }
+    }
+
+    public void printNgramFrequency() {
+        for (Map.Entry<String, Integer> map : ngramsFrequencyMap.entrySet()) {
+            System.out.println("Ngram <<< " + map.getKey() + " >>> has frequency " + map.getValue());
+        }
     }
 }
