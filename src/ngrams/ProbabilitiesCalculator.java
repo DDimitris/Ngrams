@@ -67,7 +67,6 @@ public class ProbabilitiesCalculator {
     public void calculateChainProbability() {
         double chainProbability = 0;
         boolean isFirst = true;
-//        String sentence = "";
         for (String t : testNgrams) {
             if (isFirst) {
                 chainProbability += Math.log(calculateProbabilitiesForNgram(t)) / Math.log(2);
@@ -85,7 +84,7 @@ public class ProbabilitiesCalculator {
 
     public void printProbabilities() {
         for (int i = 0; i <= testSentences.size() - 1; i++) {
-            System.out.println("Log " + testSentences.get(i) + ": " + sentencesProbability.get(i));
+            System.out.println("Log prob for \"" + testSentences.get(i) + "\" : " + sentencesProbability.get(i));
         }
     }
 

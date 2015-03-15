@@ -181,7 +181,7 @@ public class Tokenizer {
             }
             corpusWithTags.add(token);
             sentence = sentence + " " + token;
-            if (token.endsWith(".") || token.endsWith("!") || token.endsWith("?") || token.endsWith(";")) {
+            if ((token.endsWith(".") || token.endsWith("!") || token.endsWith("?") || token.endsWith(";")) && token.length() > 2) {
                 for (int i = 0; i < numberOfNgrams - 1; i++) {
                     corpusWithTags.add("<s" + (i + 1) + ">");
                     sentencesFromTest.add(sentence);
@@ -200,7 +200,7 @@ public class Tokenizer {
     /**
      * This method prints all the tags that were added.
      */
-    private void printTagedList() {
+    public void printTagedList() {
         for (String word : corpusWithTags) {
             System.out.println(word);
         }
@@ -209,7 +209,7 @@ public class Tokenizer {
     /**
      * This method prints all the words in the dictionary with their frequency.
      */
-    private void printTmpDictionary() {
+    public void printTmpDictionary() {
         for (Map.Entry<String, Integer> d : frequencyDictionary.entrySet()) {
             System.out.println("Word " + d.getKey() + " has frequency " + d.getValue());
         }

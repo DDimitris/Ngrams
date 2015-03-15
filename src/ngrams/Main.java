@@ -14,8 +14,8 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        File europarl = new File("trainEuroParlEN.txt");
-        File europarlTest = new File("testEuroParlEN.txt");
+        File europarl = new File("trainEuroParlEl.txt");
+        File europarlTest = new File("testEuroParlEl.txt");
         Tokenizer tokenizer = new Tokenizer(3, europarl, 5);
         Tokenizer testTokenizer = new Tokenizer(3, europarlTest, 5);
         tokenizer.startTokenization();
