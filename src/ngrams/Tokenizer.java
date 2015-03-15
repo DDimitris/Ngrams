@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,8 +37,10 @@ public class Tokenizer {
     private List<String> corpusWithTags;
     private Map<String, Integer> ngramsFrequencyMap;
     private Map<String, Integer> gramMinusOne;
+    private List<String> sentencesFromTest;
 
     {
+        sentencesFromTest = new ArrayList<>();
         gramMinusOne = new HashMap<>();
         ngramsFrequencyMap = new HashMap<>();
         dictionary = new HashSet<>();
@@ -74,16 +77,21 @@ public class Tokenizer {
         String replace = europarlString.replace("\n", " ");
         String replace1 = replace.replace("\r", " ");
         String replace2 = replace1.replace("\n\r", " ");
-        String replace3 = replace2.replaceAll("-", "");
+        String replace13 = replace2.replaceAll("\\s+", " ");
+        String replace3 = replace13.replaceAll("-", "");
         String replace8 = replace3.replace(",", "");
-        String[] split1 = replace8.split(" ");
+        String replace12 = replace8.replace(":", "");
+        String replace10 = replace12.replaceAll("κ.", "κ");
+        String replace11 = replace10.replaceAll("εκατ.", "εκατ");
+        String replace14 = replace11.replaceAll("εκτ.", "εκτ");
+        String[] split1 = replace14.split(" ");
         StringBuilder builder = generateStartTags(split1);
         String tagedCorpus = builder.toString();
         String replace4 = tagedCorpus.replace(".", "");
         String replace5 = replace4.replace(",", "");
         String replace6 = replace5.replace("'", "");
         String replace7 = replace6.replace("\"", "");
-        String replace9 = replace7.replaceAll("  *", " ");
+        String replace9 = replace7.replaceAll("  *", " ").toLowerCase();
         String[] split = replace9.split(" ");
         createDictionary(split);
         for (int i = numberOfNgrams - 1; i < split.length; i++) {
@@ -166,11 +174,18 @@ public class Tokenizer {
         for (int i = 0; i < numberOfNgrams - 1; i++) {
             corpusWithTags.add("<s" + (i + 1) + ">");
         }
+        String sentence = "";
         for (String token : file) {
+            if (token.equals("")) {
+                continue;
+            }
             corpusWithTags.add(token);
-            if (token.endsWith(".") || token.endsWith("!") || token.endsWith("?")) {
-                 for (int i = 0; i < numberOfNgrams - 1; i++) {
+            sentence = sentence + " " + token;
+            if (token.endsWith(".") || token.endsWith("!") || token.endsWith("?") || token.endsWith(";")) {
+                for (int i = 0; i < numberOfNgrams - 1; i++) {
                     corpusWithTags.add("<s" + (i + 1) + ">");
+                    sentencesFromTest.add(sentence);
+                    sentence = "";
                 }
             }
         }
@@ -262,5 +277,16 @@ public class Tokenizer {
 
     public Map<String, Integer> getGramsMinusOne() {
         return gramMinusOne;
+    }
+
+    public List<String> getListOfTestSentences() {
+        sentencesFromTest.removeAll(Collections.singleton(""));
+        return sentencesFromTest;
+    }
+
+    public void printSentences() {
+        for (String g : getListOfTestSentences()) {
+            System.out.println(g);
+        }
     }
 }

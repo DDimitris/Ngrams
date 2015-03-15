@@ -19,12 +19,13 @@ public class ProbabilitiesCalculator {
     private Map<String, Integer> corpusNgrams;
     private Map<String, Integer> gramsMinusOne;
     private Map<String, Integer> dictionary;
-    private int numberOfNgrams;
     private List<Double> sentencesProbability;
-    private float c;
-    private float countMinusOneGrams;
+    private double c;
+    private double countMinusOneGrams;
+    private List<String> testSentences;
 
     {
+        testSentences = new ArrayList<>();
         sentencesProbability = new ArrayList<>();
         dictionary = new HashMap<>();
         gramsMinusOne = new HashMap<>();
@@ -34,19 +35,19 @@ public class ProbabilitiesCalculator {
 
     public ProbabilitiesCalculator(List<String> testNgrams,
             Map<String, Integer> corpusNgrams,
-            Map<String, Integer> frequencyDictionary, int numberOfNgrams,
-            Map<String, Integer> dictionary) {
+            Map<String, Integer> gramsMinusOne,
+            Map<String, Integer> dictionary,
+            List<String> testSentences) {
         this.testNgrams = testNgrams;
         this.corpusNgrams = corpusNgrams;
-        this.gramsMinusOne = frequencyDictionary;
-        this.numberOfNgrams = numberOfNgrams;
+        this.gramsMinusOne = gramsMinusOne;
         this.dictionary = dictionary;
-        calculateChainProbability();
+        this.testSentences = testSentences;
     }
 
     public double calculateProbabilitiesForNgram(String testNgram) {
-        c = 0f;
-        countMinusOneGrams = 0f;
+        c = 0;
+        countMinusOneGrams = 0;
         if (corpusNgrams.containsKey(testNgram)) {
             c = corpusNgrams.get(testNgram);
         }
@@ -67,24 +68,37 @@ public class ProbabilitiesCalculator {
         double chainProbability = 0;
         boolean isFirst = true;
 //        String sentence = "";
-        for(String t : testNgrams){
-            if(isFirst){
-            chainProbability += Math.log(calculateProbabilitiesForNgram(t)) / Math.log(2);
-//            sentence += t;
-            isFirst = false;
-            continue;
+        for (String t : testNgrams) {
+            if (isFirst) {
+                chainProbability += Math.log(calculateProbabilitiesForNgram(t)) / Math.log(2);
+                isFirst = false;
+                continue;
             }
-            if(t.startsWith("<s1>")){
+            if (t.startsWith("<s1>")) {
                 sentencesProbability.add(chainProbability);
                 chainProbability = 0;
-//                System.out.println(sentence);
-//                sentence = "";
             }
-//            sentence = sentence + " " + t;
             chainProbability += Math.log(calculateProbabilitiesForNgram(t)) / Math.log(2);
         }
-        for(Double d : sentencesProbability){
-            System.out.println(d);
+        sentencesProbability.add(chainProbability);
+    }
+
+    public void printProbabilities() {
+        for (int i = 0; i <= testSentences.size() - 1; i++) {
+            System.out.println("Log " + testSentences.get(i) + ": " + sentencesProbability.get(i));
         }
+    }
+
+    public void printCounters() {
+        System.out.println("Test Ngrams size " + testNgrams.size());
+        System.out.println("Corpus Ngrams size " + corpusNgrams.size());
+        System.out.println("Grams minus one size " + gramsMinusOne.size());
+        System.out.println("Dictionary size " + dictionary.size());
+        System.out.println("Probability list size " + sentencesProbability.size());
+        System.out.println("Sentences list size " + testSentences.size());
+    }
+
+    public List<Double> getProbabilityList() {
+        return sentencesProbability;
     }
 }
