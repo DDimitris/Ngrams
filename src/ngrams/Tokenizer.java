@@ -119,7 +119,7 @@ public class Tokenizer {
             String[] split2 = token.split(" ");
             token = "";
             for (int denominator = 0; denominator < numberOfNgrams - 1; denominator++) {
-                token = token + " " + split2[denominator];
+                token = split2[denominator] + " " + token;
             }
             if (gramMinusOne.containsKey(token)) {
                 Integer frequency = gramMinusOne.get(token);
@@ -171,7 +171,7 @@ public class Tokenizer {
         for (String token : file) {
             corpusWithTags.add(token);
             if (token.endsWith(".") || token.endsWith("!") || token.endsWith("?")) {
-                for (int i = 0; i < numberOfNgrams - 1; i++) {
+                 for (int i = 0; i < numberOfNgrams - 1; i++) {
                     corpusWithTags.add("<s" + (i + 1) + ">");
                 }
             }

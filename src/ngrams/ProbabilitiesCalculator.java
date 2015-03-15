@@ -4,12 +4,11 @@
  */
 package ngrams;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  *
@@ -19,33 +18,39 @@ public class ProbabilitiesCalculator {
 
     private List<String> testNgrams;
     private Map<String, Integer> corpusNgrams;
-    private Map<String, Integer> frequencyDictionary;
+    private Map<String, Integer> gramsMinusOne;
+    private Map<String, Integer> dictionary;
     private int numberOfNgrams;
+    private String token;
+    private List<String> sentences;
+    private float c;
+    private float countMinusOneGrams;
 
     {
-        frequencyDictionary = new HashMap<>();
+        sentences = new ArrayList<>();
+        dictionary = new HashMap<>();
+        gramsMinusOne = new HashMap<>();
         testNgrams = new ArrayList<>();
         corpusNgrams = new HashMap<>();
     }
 
-    public ProbabilitiesCalculator(List<String> testNgrams, Map<String, Integer> corpusNgrams, Map<String, Integer> frequencyDictionary, int numberOfNgrams) {
+    public ProbabilitiesCalculator(List<String> testNgrams,
+            Map<String, Integer> corpusNgrams,
+            Map<String, Integer> frequencyDictionary, int numberOfNgrams,
+            Map<String, Integer> dictionary) {
         this.testNgrams = testNgrams;
         this.corpusNgrams = corpusNgrams;
-        this.frequencyDictionary = frequencyDictionary;
+        this.gramsMinusOne = frequencyDictionary;
         this.numberOfNgrams = numberOfNgrams;
-        for(String t : testNgrams){
-            System.out.println(calculateProbabilitiesForNgram(t) + "  " + t);
-        }
+        this.dictionary = dictionary;
+        calculateChainProbability();
     }
 
-    
-
     public double calculateProbabilitiesForNgram(String testNgram) {
-        Integer countWantedGram = 0;
-        Integer countGivenGram = 0;
-        System.out.println(testNgram);
+        c = 0f;
+        countMinusOneGrams = 0f;
         if (corpusNgrams.containsKey(testNgram)) {
-            countWantedGram = corpusNgrams.get(testNgram);
+            c = corpusNgrams.get(testNgram);
         }
         String[] split = testNgram.split(" ");
         StringBuilder builder = new StringBuilder();
@@ -53,11 +58,27 @@ public class ProbabilitiesCalculator {
             builder.append(split[i]);
             builder.append(" ");
         }
-        System.out.println(builder.toString());
-        System.out.println(countWantedGram);
-        if (corpusNgrams.containsKey(builder.toString())) {
-            countGivenGram = corpusNgrams.get(builder.toString());
-        } 
-        return countWantedGram / countGivenGram;
+        if (gramsMinusOne.containsKey(builder.toString())) {
+            countMinusOneGrams = gramsMinusOne.get(builder.toString());
+        }
+        System.out.println(countMinusOneGrams);
+        double answer = ((1 + c) / (countMinusOneGrams + (dictionary.size() - 1)));
+        return answer;
+    }
+
+    public void calculateChainProbability() {
+        for (String t : testNgrams) {
+            System.out.println(calculateProbabilitiesForNgram(t) + " " + t);
+//            calculateProbabilitiesForNgram(t);
+//            if(t.startsWith("<s1>")){
+//                 token = new String(t);
+//                 sentences.add(token);
+//            }else{
+//                token = token + " " + t;
+//            }
+//        }
+//        for(String t : sentences){
+//            System.out.println(t);
+        }
     }
 }

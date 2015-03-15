@@ -17,17 +17,18 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         File europarl = new File("europarl.txt");
+        File europarlTest = new File("testEuroParl.txt");
         Tokenizer tokenizer = new Tokenizer(3, europarl, 5);
+        Tokenizer testTokenizer = new Tokenizer(3, europarlTest, 5);
         tokenizer.startTokenization();
-//        tokenizer.printNgrams();
+//        tokenizer.printGramMinusOne();
+        testTokenizer.startTokenization();
+//        tokenizer.printNgramFrequency();
         List<String> l = new ArrayList<>();
-//        l.add("<s1> <s2> Geia");
-//        l.add("<s2> Geia sou");
-//        l.add("Geia sou ti");
-        l.add("Although as you");
-        l.add("as you will");
-        l.add("you will have");
-        tokenizer.printGramMinusOne();
-        ProbabilitiesCalculator p = new ProbabilitiesCalculator(l, tokenizer.getNgramsFrequency(), tokenizer.getFrequencyDictionary(), 3);
+//        tokenizer.printGramMinusOne();
+        ProbabilitiesCalculator p = new ProbabilitiesCalculator(testTokenizer.getCreatedNgrams(), 
+                tokenizer.getNgramsFrequency(), 
+                tokenizer.getGramsMinusOne(), 
+                3, tokenizer.getFrequencyDictionary());
     }
 }
