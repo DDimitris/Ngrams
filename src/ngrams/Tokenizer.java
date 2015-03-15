@@ -31,17 +31,19 @@ public class Tokenizer {
     private List<String> ngramsList;
     private String europarlString;
     private int wordFrequency;
-    private Map<String, Integer> tmpDictionary;
+    private Map<String, Integer> frequencyDictionary;
     private Set<String> dictionary;
     private List<String> corpusWithTags;
     private Map<String, Integer> ngramsFrequencyMap;
+    private Map<String, Integer> gramMinusOne;
 
     {
+        gramMinusOne = new HashMap<>();
         ngramsFrequencyMap = new HashMap<>();
         dictionary = new HashSet<>();
         corpusWithTags = new ArrayList<>();
         ngramsList = new ArrayList<>();
-        tmpDictionary = new HashMap<>();
+        frequencyDictionary = new HashMap<>();
     }
 
     /**
@@ -89,7 +91,7 @@ public class Tokenizer {
         for (int i = numberOfNgrams - 1; i < split.length; i++) {
             int ngramFrequency = 1;
             String token;
-            int j = i;
+            int j = i; //j is used for iterating the n - 1 words from the last to the first.
             if (dictionary.contains(split[i])) {
                 token = (String) split[i];
             } else {
@@ -104,7 +106,7 @@ public class Tokenizer {
                     token = "*unknown*" + " " + token;
                 }
             } while (j - 1 != k - 1);
-            if (split[ i + 1].equals("<s>")) {
+            if (split[ i + 1].equals("<s1>")) {
                 i = i + numberOfNgrams - 1;
             }
             ngramsList.add(token);
@@ -113,6 +115,17 @@ public class Tokenizer {
                 ngramsFrequencyMap.put(token, frequency + ngramFrequency);
             } else {
                 ngramsFrequencyMap.put(token, ngramFrequency);
+            }
+            String[] split2 = token.split(" ");
+            token = "";
+            for (int denominator = 0; denominator < numberOfNgrams - 1; denominator++) {
+                token = token + " " + split2[denominator];
+            }
+            if (gramMinusOne.containsKey(token)) {
+                Integer frequency = gramMinusOne.get(token);
+                gramMinusOne.put(token, frequency + ngramFrequency);
+            } else {
+                gramMinusOne.put(token, ngramFrequency);
             }
         }
     }
@@ -126,19 +139,21 @@ public class Tokenizer {
     private void createDictionary(String[] splitedFile) {
         for (String word : splitedFile) {
             int wordFrequency = 1;
-            if (tmpDictionary.containsKey(word)) {
-                wordFrequency = tmpDictionary.get(word) + 1;
+            if (frequencyDictionary.containsKey(word)) {
+                wordFrequency = frequencyDictionary.get(word) + 1;
             }
-            tmpDictionary.put(word, wordFrequency);
+            frequencyDictionary.put(word, wordFrequency);
         }
-        for (Map.Entry<String, Integer> map : tmpDictionary.entrySet()) {
+        int countTheUnknowns = 0;
+        for (Map.Entry<String, Integer> map : frequencyDictionary.entrySet()) {
             if (map.getValue() > wordFrequency) {
                 dictionary.add(map.getKey());
             } else {
                 dictionary.add("*unknown*");
+                countTheUnknowns++;
             }
         }
-
+        frequencyDictionary.put("*unknown*", countTheUnknowns);
     }
 
     /**
@@ -151,13 +166,13 @@ public class Tokenizer {
      */
     private StringBuilder generateStartTags(String[] file) {
         for (int i = 0; i < numberOfNgrams - 1; i++) {
-            corpusWithTags.add("<s>");
+            corpusWithTags.add("<s" + (i + 1) + ">");
         }
         for (String token : file) {
             corpusWithTags.add(token);
             if (token.endsWith(".") || token.endsWith("!") || token.endsWith("?")) {
                 for (int i = 0; i < numberOfNgrams - 1; i++) {
-                    corpusWithTags.add("<s>");
+                    corpusWithTags.add("<s" + (i + 1) + ">");
                 }
             }
         }
@@ -181,8 +196,8 @@ public class Tokenizer {
     /**
      * This method prints all the words in the dictionary with their frequency.
      */
-    private void printDictionary() {
-        for (Map.Entry<String, Integer> d : tmpDictionary.entrySet()) {
+    private void printTmpDictionary() {
+        for (Map.Entry<String, Integer> d : frequencyDictionary.entrySet()) {
             System.out.println("Word " + d.getKey() + " has frequency " + d.getValue());
         }
     }
@@ -221,7 +236,7 @@ public class Tokenizer {
         return ngramsFrequencyMap;
     }
 
-    public void prinNgrams() {
+    public void printNgrams() {
         for (String s : ngramsList) {
             System.out.println(s);
         }
@@ -231,5 +246,23 @@ public class Tokenizer {
         for (Map.Entry<String, Integer> map : ngramsFrequencyMap.entrySet()) {
             System.out.println("Ngram <<< " + map.getKey() + " >>> has frequency " + map.getValue());
         }
+    }
+
+    public Set<String> getDictionary() {
+        return dictionary;
+    }
+
+    public Map<String, Integer> getFrequencyDictionary() {
+        return frequencyDictionary;
+    }
+
+    public void printGramMinusOne() {
+        for (Map.Entry<String, Integer> map : gramMinusOne.entrySet()) {
+            System.out.println("Gram " + numberOfNgrams + " - 1 is <<< " + map.getKey() + " >>> with frequeny " + map.getValue());
+        }
+    }
+
+    public Map<String, Integer> getGramsMinusOne() {
+        return gramMinusOne;
     }
 }
