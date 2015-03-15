@@ -86,8 +86,6 @@ public class Tokenizer {
         String replace9 = replace7.replaceAll("  *", " ");
         String[] split = replace9.split(" ");
         createDictionary(split);
-//        printDictionary();
-//        printTagedList();
         for (int i = numberOfNgrams - 1; i < split.length; i++) {
             int ngramFrequency = 1;
             String token;

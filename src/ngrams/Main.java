@@ -24,7 +24,6 @@ public class Main {
 //        tokenizer.printGramMinusOne();
         testTokenizer.startTokenization();
 //        tokenizer.printNgramFrequency();
-        List<String> l = new ArrayList<>();
 //        tokenizer.printGramMinusOne();
         ProbabilitiesCalculator p = new ProbabilitiesCalculator(testTokenizer.getCreatedNgrams(), 
                 tokenizer.getNgramsFrequency(), 

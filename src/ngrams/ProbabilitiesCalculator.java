@@ -4,7 +4,6 @@
  */
 package ngrams;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,13 +20,12 @@ public class ProbabilitiesCalculator {
     private Map<String, Integer> gramsMinusOne;
     private Map<String, Integer> dictionary;
     private int numberOfNgrams;
-    private String token;
-    private List<String> sentences;
+    private List<Double> sentencesProbability;
     private float c;
     private float countMinusOneGrams;
 
     {
-        sentences = new ArrayList<>();
+        sentencesProbability = new ArrayList<>();
         dictionary = new HashMap<>();
         gramsMinusOne = new HashMap<>();
         testNgrams = new ArrayList<>();
@@ -61,24 +59,32 @@ public class ProbabilitiesCalculator {
         if (gramsMinusOne.containsKey(builder.toString())) {
             countMinusOneGrams = gramsMinusOne.get(builder.toString());
         }
-        System.out.println(countMinusOneGrams);
         double answer = ((1 + c) / (countMinusOneGrams + (dictionary.size() - 1)));
         return answer;
     }
 
     public void calculateChainProbability() {
-        for (String t : testNgrams) {
-            System.out.println(calculateProbabilitiesForNgram(t) + " " + t);
-//            calculateProbabilitiesForNgram(t);
-//            if(t.startsWith("<s1>")){
-//                 token = new String(t);
-//                 sentences.add(token);
-//            }else{
-//                token = token + " " + t;
-//            }
-//        }
-//        for(String t : sentences){
-//            System.out.println(t);
+        double chainProbability = 0;
+        boolean isFirst = true;
+//        String sentence = "";
+        for(String t : testNgrams){
+            if(isFirst){
+            chainProbability += Math.log(calculateProbabilitiesForNgram(t)) / Math.log(2);
+//            sentence += t;
+            isFirst = false;
+            continue;
+            }
+            if(t.startsWith("<s1>")){
+                sentencesProbability.add(chainProbability);
+                chainProbability = 0;
+//                System.out.println(sentence);
+//                sentence = "";
+            }
+//            sentence = sentence + " " + t;
+            chainProbability += Math.log(calculateProbabilitiesForNgram(t)) / Math.log(2);
+        }
+        for(Double d : sentencesProbability){
+            System.out.println(d);
         }
     }
 }
