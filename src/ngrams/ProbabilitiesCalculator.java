@@ -23,7 +23,7 @@ public class ProbabilitiesCalculator {
     private double c;
     private double countMinusOneGrams;
     private List<String> testSentences;
-
+    private int numOfGrams;
     {
         testSentences = new ArrayList<>();
         sentencesProbability = new ArrayList<>();
@@ -37,12 +37,14 @@ public class ProbabilitiesCalculator {
             Map<String, Integer> corpusNgrams,
             Map<String, Integer> gramsMinusOne,
             Map<String, Integer> dictionary,
-            List<String> testSentences) {
+            List<String> testSentences,
+            int numOfGrams) {
         this.testNgrams = testNgrams;
         this.corpusNgrams = corpusNgrams;
         this.gramsMinusOne = gramsMinusOne;
         this.dictionary = dictionary;
         this.testSentences = testSentences;
+        this.numOfGrams = numOfGrams;
     }
 
     public double calculateProbabilitiesForNgram(String testNgram) {
@@ -60,7 +62,7 @@ public class ProbabilitiesCalculator {
         if (gramsMinusOne.containsKey(builder.toString())) {
             countMinusOneGrams = gramsMinusOne.get(builder.toString());
         }
-        double answer = ((1 + c) / (countMinusOneGrams + (dictionary.size() - 1)));
+        double answer = ((1 + c) / (countMinusOneGrams + (dictionary.size() - (numOfGrams - 1))));
         return answer;
     }
 
@@ -92,7 +94,7 @@ public class ProbabilitiesCalculator {
         System.out.println("Test Ngrams size " + testNgrams.size());
         System.out.println("Corpus Ngrams size " + corpusNgrams.size());
         System.out.println("Grams minus one size " + gramsMinusOne.size());
-        System.out.println("Dictionary size " + dictionary.size());
+        System.out.println("Dictionary size " + (dictionary.size() - (numOfGrams - 1)));
         System.out.println("Probability list size " + sentencesProbability.size());
         System.out.println("Sentences list size " + testSentences.size());
     }

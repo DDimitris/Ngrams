@@ -112,7 +112,7 @@ public class Tokenizer {
                     token = "*unknown*" + " " + token;
                 }
             } while (j - 1 != k - 1);
-            if (split[ i + 1].equals("<s1>")) {
+            if (split[ i + 1 ].equals("<s1>")) {
                 i = i + numberOfNgrams - 1;
             }
             ngramsList.add(token);

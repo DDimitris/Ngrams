@@ -16,15 +16,17 @@ public class Main {
     public static void main(String[] args) throws IOException {
         File europarl = new File("trainEuroParlEl.txt");
         File europarlTest = new File("testEuroParlEl.txt");
-        Tokenizer tokenizer = new Tokenizer(3, europarl, 5);
-        Tokenizer testTokenizer = new Tokenizer(3, europarlTest, 5);
+        int numOfGrams = 3;
+        Tokenizer tokenizer = new Tokenizer(numOfGrams, europarl, 5);
+        Tokenizer testTokenizer = new Tokenizer(numOfGrams, europarlTest, 5);
         tokenizer.startTokenization();
         testTokenizer.startTokenization();
         ProbabilitiesCalculator p = new ProbabilitiesCalculator(testTokenizer.getCreatedNgrams(),
                 tokenizer.getNgramsFrequency(),
                 tokenizer.getGramsMinusOne(),
                 tokenizer.getFrequencyDictionary(),
-                testTokenizer.getListOfTestSentences());
+                testTokenizer.getListOfTestSentences(),
+                numOfGrams);
         p.calculateChainProbability();
         p.printProbabilities();
         p.printCounters();
