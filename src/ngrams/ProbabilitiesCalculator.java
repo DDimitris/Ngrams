@@ -84,9 +84,14 @@ public class ProbabilitiesCalculator {
         sentencesProbability.add(chainProbability);
     }
 
-    public void printProbabilities() {
+    public void printProbabilitiesWithSentences() {
         for (int i = 0; i <= testSentences.size() - 1; i++) {
             System.out.println("Log prob for \"" + testSentences.get(i) + "\" : " + sentencesProbability.get(i));
+        }
+    }
+    public void printOnlyProbabilities(){
+        for (int i = 0; i <= sentencesProbability.size() - 1; i++) {
+            System.out.println("Log prob : " + sentencesProbability.get(i));
         }
     }
 
@@ -97,6 +102,11 @@ public class ProbabilitiesCalculator {
         System.out.println("Dictionary size " + (dictionary.size() - (numOfGrams - 1)));
         System.out.println("Probability list size " + sentencesProbability.size());
         System.out.println("Sentences list size " + testSentences.size());
+    }
+    public void printTheUniverse(){
+        for(Map.Entry<String, Integer> map : corpusNgrams.entrySet()){
+            System.out.println("Token: " + map.getKey());
+        }
     }
 
     public List<Double> getProbabilityList() {

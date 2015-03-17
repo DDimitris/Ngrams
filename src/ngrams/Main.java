@@ -16,11 +16,13 @@ public class Main {
     public static void main(String[] args) throws IOException {
         File europarl = new File("trainEuroParlEl.txt");
         File europarlTest = new File("testEuroParlEl.txt");
-        int numOfGrams = 3;
-        Tokenizer tokenizer = new Tokenizer(numOfGrams, europarl, 5);
-        Tokenizer testTokenizer = new Tokenizer(numOfGrams, europarlTest, 5);
+        int numOfGrams = 2;
+        int k = 3;
+        Tokenizer tokenizer = new Tokenizer(numOfGrams, europarl, k, false);
+        Tokenizer testTokenizer = new Tokenizer(numOfGrams, europarlTest, k, true);
         tokenizer.startTokenization();
         testTokenizer.startTokenization();
+//        testTokenizer.printTagedList();
         ProbabilitiesCalculator p = new ProbabilitiesCalculator(testTokenizer.getCreatedNgrams(),
                 tokenizer.getNgramsFrequency(),
                 tokenizer.getGramsMinusOne(),
@@ -28,7 +30,11 @@ public class Main {
                 testTokenizer.getListOfTestSentences(),
                 numOfGrams);
         p.calculateChainProbability();
-        p.printProbabilities();
+        p.printOnlyProbabilities();
         p.printCounters();
+//        p.printTheUniverse();
+        double logarithmicProbability = (double) p.getProbabilityList().get(0);
+        CrossEntropyCalculator entropy = new CrossEntropyCalculator(testTokenizer.getFrequencyDictionary(), logarithmicProbability);
+        System.out.println("The calculated entropy is: " + entropy.calculateEntropy());
     }
 }

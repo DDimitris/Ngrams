@@ -38,7 +38,7 @@ public class Tokenizer {
     private Map<String, Integer> ngramsFrequencyMap;
     private Map<String, Integer> gramMinusOne;
     private List<String> sentencesFromTest;
-
+    private boolean isEntropyCalculation;
     {
         sentencesFromTest = new ArrayList<>();
         gramMinusOne = new HashMap<>();
@@ -61,10 +61,11 @@ public class Tokenizer {
      * @param fileToBeRead
      * @param wordFrequency
      */
-    public Tokenizer(int numberOfNgrams, File fileToBeRead, int wordFrequency) {
+    public Tokenizer(int numberOfNgrams, File fileToBeRead, int wordFrequency, boolean isEntropyCalculation) {
         this.numberOfNgrams = numberOfNgrams;
         this.fileToBeRead = fileToBeRead;
         this.wordFrequency = wordFrequency;
+        this.isEntropyCalculation = isEntropyCalculation;
     }
 
     /**
@@ -77,13 +78,12 @@ public class Tokenizer {
         String replace = europarlString.replace("\n", " ");
         String replace1 = replace.replace("\r", " ");
         String replace2 = replace1.replace("\n\r", " ");
-        String replace13 = replace2.replaceAll("\\s+", " ");
-        String replace3 = replace13.replaceAll("-", "");
+        String replace3 = replace2.replaceAll("-", "");
         String replace8 = replace3.replace(",", "");
         String replace12 = replace8.replace(":", "");
-        String replace10 = replace12.replaceAll("κ.", "κ");
-        String replace11 = replace10.replaceAll("εκατ.", "εκατ");
-        String replace14 = replace11.replaceAll("εκτ.", "εκτ");
+        String replace10 = replace12.replace("κ.", "κ");
+        String replace11 = replace10.replace("εκατ.", "εκατ");
+        String replace14 = replace11.replace("εκτ.", "εκτ");
         String[] split1 = replace14.split(" ");
         StringBuilder builder = generateStartTags(split1);
         String tagedCorpus = builder.toString();
@@ -112,9 +112,6 @@ public class Tokenizer {
                     token = "*unknown*" + " " + token;
                 }
             } while (j - 1 != k - 1);
-            if (split[ i + 1 ].equals("<s1>")) {
-                i = i + numberOfNgrams - 1;
-            }
             ngramsList.add(token);
             if (ngramsFrequencyMap.containsKey(token)) {
                 Integer frequency = ngramsFrequencyMap.get(token);
@@ -132,6 +129,12 @@ public class Tokenizer {
                 gramMinusOne.put(token, frequency + ngramFrequency);
             } else {
                 gramMinusOne.put(token, ngramFrequency);
+            }
+            if(i==split.length-1){
+                break;
+            }
+            if (split[ i + 1 ].equals("<s1>")) {
+                i = i + numberOfNgrams - 1;
             }
         }
     }
@@ -181,7 +184,7 @@ public class Tokenizer {
             }
             corpusWithTags.add(token);
             sentence = sentence + " " + token;
-            if ((token.endsWith(".") || token.endsWith("!") || token.endsWith("?") || token.endsWith(";")) && token.length() > 2) {
+            if ((token.endsWith(".") || token.endsWith("!") || token.endsWith("?") || token.endsWith(";")) && token.length() > 2 && !isEntropyCalculation) {
                 for (int i = 0; i < numberOfNgrams - 1; i++) {
                     corpusWithTags.add("<s" + (i + 1) + ">");
                     sentencesFromTest.add(sentence);
@@ -189,6 +192,9 @@ public class Tokenizer {
                 }
             }
         }
+            if(isEntropyCalculation){
+                sentencesFromTest.add(sentence);
+            }
         StringBuilder b = new StringBuilder();
         for (String s : corpusWithTags) {
             b.append(s);
