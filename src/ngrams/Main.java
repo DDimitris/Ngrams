@@ -13,28 +13,47 @@ import java.io.IOException;
  */
 public class Main {
 
+    private static final int grams = 3;
+    private static final int k = 3;
+    private File trainSet;
+    private File testSet;
+    private Tokenizer trainTokenizer;
+    private Tokenizer testTokenizer;
+    private ProbabilitiesCalculator probabilities;
+    private CrossEntropyCalculator crossEntropyCalculator;
+    private double logarithmicProbability;
+    private boolean calculateEntropy = false;
+
+    public Main() throws IOException {
+        trainSet = new File("trainEuroParlEl.txt");
+        testSet = new File("testEuroParlEl.txt");
+        trainTokenizer = new Tokenizer(grams, trainSet, k, false); //set it to false to turn of the entropy calculation
+        testTokenizer = new Tokenizer(grams, testSet, k, calculateEntropy);
+        run();
+    }
+
     public static void main(String[] args) throws IOException {
-        File europarl = new File("trainEuroParlEl.txt");
-        File europarlTest = new File("testEuroParlEl.txt");
-        int numOfGrams = 2;
-        int k = 3;
-        Tokenizer tokenizer = new Tokenizer(numOfGrams, europarl, k, false);
-        Tokenizer testTokenizer = new Tokenizer(numOfGrams, europarlTest, k, true);
-        tokenizer.startTokenization();
+        new Main();
+    }
+
+    private void run() throws IOException {
+        trainTokenizer.startTokenization();
         testTokenizer.startTokenization();
-//        testTokenizer.printTagedList();
-        ProbabilitiesCalculator p = new ProbabilitiesCalculator(testTokenizer.getCreatedNgrams(),
-                tokenizer.getNgramsFrequency(),
-                tokenizer.getGramsMinusOne(),
-                tokenizer.getFrequencyDictionary(),
+        probabilities = new ProbabilitiesCalculator(testTokenizer.getCreatedNgrams(),
+                trainTokenizer.getNgramsFrequency(),
+                trainTokenizer.getGramsMinusOne(),
+                trainTokenizer.getFrequencyDictionary(),
                 testTokenizer.getListOfTestSentences(),
-                numOfGrams);
-        p.calculateChainProbability();
-        p.printOnlyProbabilities();
-        p.printCounters();
-//        p.printTheUniverse();
-        double logarithmicProbability = (double) p.getProbabilityList().get(0);
-        CrossEntropyCalculator entropy = new CrossEntropyCalculator(testTokenizer.getFrequencyDictionary(), logarithmicProbability);
-        System.out.println("The calculated entropy is: " + entropy.calculateEntropy());
+                grams);
+        probabilities.calculateChainProbability();
+        if (calculateEntropy) {
+            probabilities.printOnlyProbabilities();
+            logarithmicProbability = (double) probabilities.getProbabilityList().get(0);
+            crossEntropyCalculator = new CrossEntropyCalculator(testTokenizer.getFrequencyDictionary(), logarithmicProbability);
+            System.out.println("The calculated entropy for " + grams + "-gram model is: " + crossEntropyCalculator.calculateEntropy());
+        } else {
+            probabilities.printProbabilitiesWithSentences();
+        }
+        probabilities.printCounters();
     }
 }

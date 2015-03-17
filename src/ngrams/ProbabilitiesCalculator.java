@@ -24,6 +24,7 @@ public class ProbabilitiesCalculator {
     private double countMinusOneGrams;
     private List<String> testSentences;
     private int numOfGrams;
+
     {
         testSentences = new ArrayList<>();
         sentencesProbability = new ArrayList<>();
@@ -89,7 +90,8 @@ public class ProbabilitiesCalculator {
             System.out.println("Log prob for \"" + testSentences.get(i) + "\" : " + sentencesProbability.get(i));
         }
     }
-    public void printOnlyProbabilities(){
+
+    public void printOnlyProbabilities() {
         for (int i = 0; i <= sentencesProbability.size() - 1; i++) {
             System.out.println("Log prob : " + sentencesProbability.get(i));
         }
@@ -103,8 +105,9 @@ public class ProbabilitiesCalculator {
         System.out.println("Probability list size " + sentencesProbability.size());
         System.out.println("Sentences list size " + testSentences.size());
     }
-    public void printTheUniverse(){
-        for(Map.Entry<String, Integer> map : corpusNgrams.entrySet()){
+
+    public void printTheUniverse() {
+        for (Map.Entry<String, Integer> map : corpusNgrams.entrySet()) {
             System.out.println("Token: " + map.getKey());
         }
     }

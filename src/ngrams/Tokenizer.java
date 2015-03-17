@@ -39,6 +39,7 @@ public class Tokenizer {
     private Map<String, Integer> gramMinusOne;
     private List<String> sentencesFromTest;
     private boolean isEntropyCalculation;
+
     {
         sentencesFromTest = new ArrayList<>();
         gramMinusOne = new HashMap<>();
@@ -130,10 +131,10 @@ public class Tokenizer {
             } else {
                 gramMinusOne.put(token, ngramFrequency);
             }
-            if(i==split.length-1){
+            if (i == split.length - 1) {
                 break;
             }
-            if (split[ i + 1 ].equals("<s1>")) {
+            if (split[ i + 1].equals("<s1>")) {
                 i = i + numberOfNgrams - 1;
             }
         }
@@ -192,9 +193,7 @@ public class Tokenizer {
                 }
             }
         }
-            if(isEntropyCalculation){
-                sentencesFromTest.add(sentence);
-            }
+        sentencesFromTest.add(sentence);
         StringBuilder b = new StringBuilder();
         for (String s : corpusWithTags) {
             b.append(s);
